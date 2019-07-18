@@ -59,6 +59,21 @@ void OnCollision(Aspen::Physics::Collision c)
   Aspen::Log::Debug("I have been in a horrible collision");
 }
 };
+class Collectible : public Aspen::Graphics::Rectangle
+{
+public:
+  Collectible(Object *parent = nullptr, std::string name = "Collectible") :
+    Aspen::Graphics::Rectangle(SDL_Rect({0, 0, 200, 50}), Aspen::Graphics::Colors::RED, true, parent, name)
+  {
+    GetTransform()->SetPosition(100, 430);
+    CreateChild<Aspen::Physics::AABBCollider>()->SetSize(200,50);
+    
+  }
+  void OnCollision(Aspen::Physics::Collision c)
+  {
+    Aspen::Log::Debug("You are touching a thing.");
+  }
+};
 
 
 
@@ -67,6 +82,7 @@ class MainMenu : public GameState
   Aspen::Graphics::UI::Text *title;
   Player *player;
   Platform *platform;
+  Collectible *collectible;
 
   public:
     MainMenu(Object *parent = nullptr, std::string name = "MainMenu") : GameState(parent, name)
@@ -78,6 +94,9 @@ class MainMenu : public GameState
       title->GetTransform()->SetRotation(0);
       title->GetTransform()->SetScale(1.12, 0.790);
       AddChild(title);
+
+      collectible = new Collectible();
+      AddChild(collectible);
 
       player = new Player(this, "Player");
       player->GetTransform()->SetPosition(100,200);
