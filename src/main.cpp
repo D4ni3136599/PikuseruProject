@@ -116,28 +116,28 @@ class MainMenu : public GameState
     if(Aspen::Input::KeyHeld(SDLK_w))
     {
       Aspen::Log::Info("W is held");
-      player->GetRigidbody()->SetCartesianVelocity(0, -20);
+      player->GetRigidbody()->SetCartesianVelocity(0, -10);
       //title->GetTransform()->ModifyRotation(radians);
       //radians += 0.001;
     }
     if(Aspen::Input::KeyHeld(SDLK_s))
     {
       Aspen::Log::Info("S is held");
-      player->GetRigidbody()->SetCartesianVelocity(0, 3);
+      player->GetRigidbody()->SetCartesianVelocity(0, 5);
       //title->GetTransform()->ModifyRotation(radians);
       //radians += 0.001;
     }
     if(Aspen::Input::KeyHeld(SDLK_d))
     {
       Aspen::Log::Info("D is held");
-      player->GetRigidbody()->SetCartesianVelocity(3, 0);
+      player->GetRigidbody()->SetCartesianVelocity(5, 0);
       //title->GetTransform()->ModifyRotation(radians);
       //radians += 0.001;
     }
     if(Aspen::Input::KeyHeld(SDLK_a))
     {
       Aspen::Log::Info("A is held");
-      player->GetRigidbody()->SetCartesianVelocity(-3, 0);
+      player->GetRigidbody()->SetCartesianVelocity(-5, 0);
       //title->GetTransform()->ModifyRotation(radians);
       //radians += 0.001;
     }
