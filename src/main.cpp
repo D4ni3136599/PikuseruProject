@@ -52,7 +52,7 @@ public:
     Aspen::Graphics::Sprite("./resources/GrassyBlock.png", parent, name)
   {
     GetTransform()->SetPosition(100, 420);
-    CreateChild<Aspen::Physics::AABBCollider>()->SetSize(256, 160);
+    CreateChild<Aspen::Physics::AABBCollider>()->SetSize(128, 80);
   }
 
 void OnCollision(Aspen::Physics::Collision c)
@@ -108,7 +108,7 @@ class MainMenu : public GameState
       AddChild(collectible);
 
       player = new Player(this, "Player");
-      player->GetTransform()->SetPosition(100,200);
+      player->GetTransform()->SetPosition(500,200);
       AddChild(player);
 
       platform = new Platform();
