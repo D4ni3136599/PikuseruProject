@@ -18,7 +18,7 @@ using Aspen::GameState::GameStateManager;
 using Aspen::Graphics::Graphics;
 using Aspen::Object::Object;
 
-double radians = 0.01;
+//double radians = 0.01;
 
 void ChangeScene(Aspen::Graphics::UI::Button *button, std::string scene, GameStateManager *gsm)
 {
@@ -27,6 +27,7 @@ void ChangeScene(Aspen::Graphics::UI::Button *button, std::string scene, GameSta
 
 class Player : public Aspen::Graphics::Animation
 {
+
   public:
   Player(Object *parent = nullptr, std::string name = "Player") :
     Aspen::Graphics::Animation(
@@ -35,11 +36,11 @@ class Player : public Aspen::Graphics::Animation
       {
       CreateChild<Aspen::Physics::AABBCollider>()->SetSize(128, 64);
       CreateChild<Aspen::Physics::Rigidbody>();
+      GetTransform()->SetPosition(200,600);
       }
   void OnCollision(Aspen::Physics::Collision c)
   {
     Aspen::Log::Debug("Help I've fallen and I can't get up");
-    
   }
 
 };
@@ -51,12 +52,16 @@ public:
     Aspen::Graphics::Sprite("./resources/GrassyBlock.png", parent, name)
   {
     GetTransform()->SetPosition(100, 420);
-    CreateChild<Aspen::Physics::AABBCollider>()->SetSize(200, 60);
+    CreateChild<Aspen::Physics::AABBCollider>()->SetSize(256, 160);
   }
 
 void OnCollision(Aspen::Physics::Collision c)
 {
+  if (c.collider->Parent()->Name() != "Platform")
+  {
   Aspen::Log::Debug("I have been in a horrible collision");
+
+  }
 }
 };
 class Collectible : public Aspen::Graphics::Rectangle
@@ -79,21 +84,25 @@ public:
 
 class MainMenu : public GameState
 {
-  Aspen::Graphics::UI::Text *title;
+  Aspen::Graphics::UI::Text *timer;
+  //Aspen::Graphics::UI::Text *title;
   Player *player;
   Platform *platform;
   Collectible *collectible;
 
+  float time = 0;
+  int timeLeft;
   public:
     MainMenu(Object *parent = nullptr, std::string name = "MainMenu") : GameState(parent, name)
     {  
       //text physics
       player = new Player();
-      title = new Aspen::Graphics::UI::Text("You are wrong", "default", 64, this, "Title");
-      title->GetTransform()->SetPosition(313, 400);
-      title->GetTransform()->SetRotation(0);
-      title->GetTransform()->SetScale(1.12, 0.790);
-      AddChild(title);
+      timer = new Aspen::Graphics::UI::Text("60", "default", 64, this, "Title");
+      //title = new Aspen::Graphics::UI::Text("You are wrong", "default", 64, this, "Title");
+      timer->GetTransform()->SetPosition(536, 26);
+      //title->GetTransform()->SetRotation(0);
+      //title->GetTransform()->SetScale(1.12, 0.790);
+      AddChild(timer);
 
       collectible = new Collectible();
       AddChild(collectible);
@@ -119,57 +128,61 @@ class MainMenu : public GameState
       AddChild(platform);
   }
 
-  void OnUpdate()
-  {
+    void OnUpdate()
+  { 
+    time += Aspen::Engine::Engine::Get()->FindChildOfType<Aspen::Time::Time>()->DeltaTime();
+    timeLeft = 60 - time;
+    timer->SetText(std::to_string(timeLeft));
 
     if(Aspen::Input::KeyHeld(SDLK_w))
     {
       Aspen::Log::Info("W is held");
-      player->GetTransform()->ModifyPosition(0, -20);
+      player->GetRigidbody()->SetCartesianVelocity(0, -10);
       //title->GetTransform()->ModifyRotation(radians);
       //radians += 0.001;
     }
     if(Aspen::Input::KeyHeld(SDLK_s))
     {
       Aspen::Log::Info("S is held");
-      player->GetTransform()->ModifyPosition(0, 3);
+      player->GetRigidbody()->SetCartesianVelocity(0, 5);
       //title->GetTransform()->ModifyRotation(radians);
       //radians += 0.001;
     }
     if(Aspen::Input::KeyHeld(SDLK_d))
     {
       Aspen::Log::Info("D is held");
-      player->GetTransform()->ModifyPosition(3, 0);
+      player->GetRigidbody()->SetCartesianVelocity(5, 0);
       //title->GetTransform()->ModifyRotation(radians);
       //radians += 0.001;
     }
     if(Aspen::Input::KeyHeld(SDLK_a))
     {
       Aspen::Log::Info("A is held");
-      player->GetTransform()->ModifyPosition(-3, 0);
+      player->GetRigidbody()->SetCartesianVelocity(-5, 0);
       //title->GetTransform()->ModifyRotation(radians);
       //radians += 0.001;
     }
     if(Aspen::Input::KeyHeld(SDLK_SPACE))
     {
-      radians = 0;
+      //radians = 0;
     }
     else
     {
-       title->GetTransform()->ModifyRotation(radians);
-       radians += 0.001;
-       Aspen::Log::Info("Velocity is ", radians);
+       //title->GetTransform()->ModifyRotation(radians);
+       //radians += 0.001;
+       //Aspen::Log::Info("Velocity is ", radians);
     }
-    
+
+
+    if(timeLeft <= 0)
+    {
+      timeLeft = 0;
+      timer = new Aspen::Graphics::UI::Text("0", "default", 64, this, "Title");
+      player->GetRigidbody()->SetCartesianVelocity(0,0);
+    }
   }
 
-
-
-
 };
-
-class Game : public GameState
-{};
 
 int main(int argc, char **argv)
 {
@@ -185,7 +198,7 @@ int main(int argc, char **argv)
   gfx->CreateChild<Aspen::Graphics::FontCache>();
   engine.AddChild(gfx);
 
-  engine.FindChildOfType<Aspen::Physics::Physics>()->SetGravityStrength(1);
+  engine.FindChildOfType<Aspen::Physics::Physics>()->SetGravityStrength(0);
   engine.FindChildOfType<Aspen::Physics::Physics>()->SetDrag(0.1);
   engine.FindChildOfType<Aspen::Time::Time>()->TargetFramerate(60);
   engine.FindChildOfType<Aspen::Graphics::Graphics>()->FindChildOfType<Aspen::Graphics::FontCache>()->LoadFont("resources/ABeeZee-Regular.ttf", "default");
